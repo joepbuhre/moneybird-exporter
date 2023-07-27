@@ -12,8 +12,8 @@ declare global {
             LOG_LEVEL: Level; // debug
             LOGGER_NAME: string; // fridgy
 
-            AUTH_LOGOUT_URL: string | 'false'; // false #https://auth.vicinusvetus.nl/
-            AUTH_REDIRECT_PARAM: string; // rd
+            MONEYBIRD_TOKEN: string
+            MONEYBIRD_ADMINISTRATION: string
 
         }
     }

@@ -8,6 +8,8 @@ import express, { Request, Response, Router, static as _static } from "express";
 import cors from "cors";
 import { logger } from "./utils/logger";
 import { resolve } from "path";
+import invoices from "./routes/invoice.route";
+import mail from "./routes/mail.route";
 
 
 const app = express();
@@ -25,13 +27,13 @@ if (process.env.NODE_ENV === "production") {
     logger.debug("Start frontend with `npm run dev:frontend`");
 }
 
-router.use('/', (req: Request, res: Response) => {
+router.get('/', (req: Request, res: Response) => {
     res.send('OK')
 })
 
-// router.use("/items", items);
-// router.use("/locations", locations);
-// router.use("/auth", auth)
+router.use('/invoices', invoices)
+
+router.use('/mail', mail)
 
 app.use("/api", router);
 
