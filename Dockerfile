@@ -1,26 +1,24 @@
-FROM node:16-slim as builder
+FROM node:20-slim as builder
 
 WORKDIR /builder
 
 COPY ./ ./
 
 RUN npm ci
-RUN npx prisma generate --schema=./server/prisma/schema.prisma
+
 RUN npm run build
 
-FROM node:lts-slim as target
+FROM node:20-slim as target
 
 WORKDIR /app
 
 COPY --from=builder /builder/dist /app/
 COPY --from=builder /builder/package* /app/
-COPY ./server/prisma ./server/prisma
 
 RUN npm ci --omit dev
-RUN npx prisma generate
 
 ENV LOG_ENABLED=true
 ENV LOG_LEVEL=debug
-ENV LOGGER_NAME=fridgy
+ENV NODE_ENV=production
 
-CMD ["/bin/bash", "-c", "npm run prisma:deploy; node /app/server"]
+CMD ["/bin/bash", "-c", "node /app/server"]
