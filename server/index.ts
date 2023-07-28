@@ -1,5 +1,4 @@
 import { config } from "dotenv";
-
 config({
     path: "./server/.env",
 });
@@ -10,9 +9,14 @@ import { logger } from "./utils/logger";
 import { resolve } from "path";
 import invoices from "./routes/invoice.route";
 import mail from "./routes/mail.route";
-
+import http from 'http'
+import { socketConnection } from "./socketio";
 
 const app = express();
+
+const server = http.createServer(app);
+
+socketConnection(server)
 
 const router = Router();
 
@@ -39,6 +43,6 @@ app.use("/api", router);
 
 process.env.BACKEND_PORT = '8000'
 
-app.listen(process.env.BACKEND_PORT, async () => {
+server.listen(process.env.BACKEND_PORT, async () => {
     logger.info(`Listening on ${process.env.BACKEND_PORT} 🚀`);
 });

@@ -9,6 +9,6 @@ invoices.get('/', Invoices)
 
 invoices.get('/export', getInvoicesExport)
 
-invoices.get('/send-export', sendInvoicesExport)
+invoices.post('/send-export', sendInvoicesExport)
 
 export default invoices

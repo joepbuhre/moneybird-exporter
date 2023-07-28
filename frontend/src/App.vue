@@ -1,7 +1,17 @@
 <template>
-    <div class="md:flex">
-        <div class="px-4 py-2 bg-white md:w-full">
-            <router-view />
-        </div>
-    </div>
+    <router-view />
+    <TheNotification />
 </template>
+
+<script setup lang="ts">
+import TheNotification from './components/TheNotification.vue';
+
+
+</script>
+
+<style>
+body {
+    @apply bg-blue-400
+}
+</style>
+

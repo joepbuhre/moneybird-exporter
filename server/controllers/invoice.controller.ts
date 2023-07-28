@@ -3,6 +3,7 @@ import getMoneybirdApi from "../utils/moneybird"
 import { getInvoices, getInvoicesPdf, sendInvoicesPdfZip } from "../models/invoice.model"
 import nodemailer from 'nodemailer'
 import fs from 'fs'
+import { emitStatus } from "../socketio"
 
 const bird = getMoneybirdApi(process.env.MONEYBIRD_ADMINISTRATION, process.env.MONEYBIRD_TOKEN)
 
@@ -28,8 +29,12 @@ export const sendInvoicesExport = async (req: Request, res: Response) => {
         port: 1025
     })
     const invoices = await getInvoices()
+    emitStatus(1, true)
     const output = fs.createWriteStream(__dirname + '/example.zip');
+    emitStatus(2, true)
     await getInvoicesPdf(invoices, output)
+    
+    emitStatus(3, true)
 
     await nmail.sendMail({
         from: 'noreply@domain.com',
@@ -40,6 +45,7 @@ export const sendInvoicesExport = async (req: Request, res: Response) => {
         attachments: [{'filename': 'attachment.zip', 'content': fs.createReadStream(__dirname + '/example.zip')}]
 
       })
+    emitStatus(4, true)
 
     fs.unlinkSync(__dirname + '/example.zip')
 
