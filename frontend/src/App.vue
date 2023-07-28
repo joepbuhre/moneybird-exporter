@@ -11,7 +11,7 @@ import TheNotification from './components/TheNotification.vue';
 
 <style>
 body {
-    @apply bg-blue-400
+    @apply bg-slate-300
 }
 </style>
 

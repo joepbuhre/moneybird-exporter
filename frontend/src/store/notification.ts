@@ -1,15 +1,12 @@
 import { defineStore } from 'pinia'
 
-const classes = {
-    'info': '',
-    'success': 'success',
-    'error': 'error',
-}
+type NotType = "info" | "success" | "error"
 
 interface notObj {
     id: string,
     text: string,
-    classes: string
+    type: NotType,
+    percent: number
 }
 
 export const useNotifications =  defineStore('Notifications', {
@@ -24,18 +21,28 @@ export const useNotifications =  defineStore('Notifications', {
         }
     },
     actions: {
-        add(text: string, type: "info" | "success" | "error", timeout: number = 10000) {
+        add(text: string, type: NotType, timeout: number = 10000) {
             const randId = `ID_${Math.round(Math.random() * 1000).toString()}`
             const obj: notObj = {
                 id: randId,
                 text: text,
-                classes: classes[type]
+                type: type,
+                percent: 100
             }
             this.notifications[randId] = obj
 
-            setTimeout(() => {
-                this.delete(randId)
-            }, timeout);
+            let intNr = 50
+            if(timeout > 0) {
+                let i = setInterval(() => {
+                    let tempObj = this.notifications[randId]
+                    tempObj.percent -= (intNr / timeout) * 100
+                }, intNr)
+
+                setTimeout(() => {
+                    this.delete(randId)
+                    clearInterval(i)
+                }, timeout);
+            }
         },
         delete(randId: string) {
             try {
