@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "baseUrl": ".", // This must be specified if "paths" is.
     "useDefineForClassFields": true,
     "module": "commonjs",
-    "moduleResolution": "Node",
+    "moduleResolution": "Node16",
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,

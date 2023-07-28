@@ -1,5 +1,5 @@
-import { config } from "dotenv";
-config({
+import { config as _config } from "dotenv";
+_config({
     path: "./server/.env",
 });
 
@@ -10,8 +10,9 @@ import { resolve } from "path";
 import invoices from "./routes/invoice.route";
 import mail from "./routes/mail.route";
 import http from 'http'
-import { socketConnection } from "./socketio";
-
+import { socketConnection } from "./socketio"
+import config from "./utils/config";
+import moneybird from "./routes/moneybird.route";
 const app = express();
 
 const server = http.createServer(app);
@@ -23,7 +24,7 @@ const router = Router();
 app.use(cors());
 app.use(express.json());
 
-if (process.env.NODE_ENV === "production") {
+if (config.NODE_ENV === "production") {
     // Implement static
     app.use("/", _static(resolve(__dirname, "../frontend")));
     logger.debug('serving frontend from dist')
@@ -35,14 +36,26 @@ router.get('/', (req: Request, res: Response) => {
     res.send('OK')
 })
 
+router.use('*', (req: Request, res: Response, next) => {
+    if('moneybird-administration' in req.headers) {
+        logger.debug('Found Moneybird administration, setted for this route')
+        config.MONEYBIRD_ADMINISTRATION = <string>req.headers['moneybird-administration']
+    }
+    if('moneybird-token' in req.headers) {
+        logger.debug('Found Moneybird token, setted for this route')
+        config.MONEYBIRD_TOKEN = <string>req.headers['moneybird-token']
+    }
+    next()
+})
+
 router.use('/invoices', invoices)
 
 router.use('/mail', mail)
 
+router.use('/moneybird', moneybird)
+
 app.use("/api", router);
 
-process.env.BACKEND_PORT = '8000'
-
-server.listen(process.env.BACKEND_PORT, async () => {
-    logger.info(`Listening on ${process.env.BACKEND_PORT} 🚀`);
+server.listen(config.BACKEND_PORT, async () => {
+    logger.info(`Listening on ${config.BACKEND_PORT} 🚀`);
 });

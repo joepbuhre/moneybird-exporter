@@ -4,9 +4,7 @@ declare global {
     namespace NodeJS {
         interface ProcessEnv {
             NODE_ENV: "development" | "production";
-            FRIDGY_LOCATIONS: string;
-            DATABASE_URL: string; // "postgresql://jbuhre:root@localhost:5432/fridgy"
-            BACKEND_PORT: string; // 8080
+            BACKEND_PORT: number
 
             LOG_ENABLED: "true" | "false"; // true
             LOG_LEVEL: Level; // debug
@@ -15,6 +13,16 @@ declare global {
             MONEYBIRD_TOKEN: string
             MONEYBIRD_ADMINISTRATION: string
 
+            MONEYBIRD_CLIENT_ID: string
+            MONEYBIRD_CLIENT_SECRET: string
+            MONEYBIRD_REDIRECT_URI: string
+
+            MAIL_FROM: string
+            MAIL_CC: string
+            MAIL_SUBJECT: string
+            MAIL_TEXT: string
+
+            FILENAME_PREFIX: string
         }
     }
 }

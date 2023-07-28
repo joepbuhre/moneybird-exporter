@@ -1,11 +1,14 @@
 import { Request, Response } from "express"
-import getMoneybirdApi from "../utils/moneybird"
 import { getInvoices, getInvoicesPdf, sendInvoicesPdfZip } from "../models/invoice.model"
 import nodemailer from 'nodemailer'
 import fs from 'fs'
 import { emitStatus } from "../socketio"
+import { resolve } from "path"
+import type { sendInvoicesExportBody } from '../types/invoice' 
+import config from "../utils/config"
+import { logger } from "../utils/logger"
+import { dateFormat } from "../utils/date"
 
-const bird = getMoneybirdApi(process.env.MONEYBIRD_ADMINISTRATION, process.env.MONEYBIRD_TOKEN)
 
 export const Invoices = async (req: Request, res: Response) => {
     const invoices = await getInvoices({
@@ -24,30 +27,45 @@ export const getInvoicesExport = async (req: Request, res: Response) => {
 }
 
 export const sendInvoicesExport = async (req: Request, res: Response) => {
+    const body: sendInvoicesExportBody = req.body
+
+    // Set Filename
+    const fname = `${config.FILENAME_PREFIX}${dateFormat()}.zip`
+    const fpath = resolve(__dirname, fname)
+
+
     const nmail = nodemailer.createTransport({
-        host: 'localhost',
-        port: 1025
+        host: config.SMTP_HOST,
+        port: parseInt(config.SMTP_PORT),
+        auth: {
+            user: config.SMTP_USER,
+            pass: config.SMTP_PASS,
+        }
     })
+
+    // Get all the eligible invoices
     const invoices = await getInvoices()
     emitStatus(1, true)
-    const output = fs.createWriteStream(__dirname + '/example.zip');
+
+    // Create output file to write temporarily to
+    const output = fs.createWriteStream(fpath);
     emitStatus(2, true)
+
+    // Get all the invoices zipped together
     await getInvoicesPdf(invoices, output)
-    
     emitStatus(3, true)
 
     await nmail.sendMail({
-        from: 'noreply@domain.com',
-        to: 'whatever@otherdomain.com',
-        subject: 'Confirm Email',
-        text: 'Please confirm your email',
-        html: '<p>Please confirm your email</p>',
-        attachments: [{'filename': 'attachment.zip', 'content': fs.createReadStream(__dirname + '/example.zip')}]
+        from: config.MAIL_FROM,
+        to: body.email,
+        subject: config.MAIL_SUBJECT,
+        text: (body?.body ? body.body : config.MAIL_TEXT ),
+        attachments: [{'filename': fname, 'content': fs.createReadStream(fpath)}]
 
       })
     emitStatus(4, true)
 
-    fs.unlinkSync(__dirname + '/example.zip')
+    fs.unlinkSync(fpath)
 
     res.end()   
 }

@@ -1,8 +1,12 @@
 import axios, { AxiosError, AxiosInstance } from 'axios'
 import { logger } from './logger'
 import { moneybirdFilter } from '../types/moneybird'
+import config from './config'
 
 const getMoneybirdApi = (administrationId: string | undefined, bearerToken: string | undefined): AxiosInstance => {
+    logger.debug(config.MONEYBIRD_ADMINISTRATION)
+    logger.debug(config.MONEYBIRD_TOKEN)
+
     if(administrationId === undefined || bearerToken === undefined ) {
         logger.error('Please check the env variables administrationId and bearerToken one of them appears to be undefined', {administrationId, bearerToken})
     }

@@ -6,17 +6,20 @@ import { archive } from "./archive.model"
 import { parse } from "path"
 import { AxiosRequestConfig } from "axios"
 import { Response } from "express"
+import config from "../utils/config"
 
-const bird = getMoneybirdApi(process.env.MONEYBIRD_ADMINISTRATION, process.env.MONEYBIRD_TOKEN)
 
 export const getInvoices = (params?: moneybirdFilter): Promise<string[]> => {
-    let config: AxiosRequestConfig = {}
+
+    const bird = getMoneybirdApi(config.MONEYBIRD_ADMINISTRATION, config.MONEYBIRD_TOKEN)
+    
+    let rconfig: AxiosRequestConfig = {}
     if(params) {
-        config['params'] = setMoneybirdFilter(params)
+        rconfig['params'] = setMoneybirdFilter(params)
     }
 
     return new Promise((resolve, reject) => {
-        bird.get('/sales_invoices', config).then(res => {
+        bird.get('/sales_invoices', rconfig).then(res => {
             const data: sales_invoices = res.data
             const invoices = data.map(el => {
                 return el.id
@@ -32,7 +35,8 @@ export const getInvoices = (params?: moneybirdFilter): Promise<string[]> => {
  * @returns array of succesfull fetched links
  */
 export const sendInvoicesPdfZip = async (ids: string[], res: Response): Promise<string[]> => {
-    
+    const bird = getMoneybirdApi(config.MONEYBIRD_ADMINISTRATION, config.MONEYBIRD_TOKEN)
+
     const arch = archive(res)
     res.attachment('test.zip')
 
@@ -76,7 +80,8 @@ export const sendInvoicesPdfZip = async (ids: string[], res: Response): Promise<
 
 
 export const getInvoicesPdf = async (ids: string[], output: any): Promise<string[]> => {
-    
+    const bird = getMoneybirdApi(config.MONEYBIRD_ADMINISTRATION, config.MONEYBIRD_TOKEN)
+
     const arch = archive(output)
     
     const promises = Promise.allSettled(
