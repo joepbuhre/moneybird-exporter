@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "baseUrl": ".", // This must be specified if "paths" is.
+    "useDefineForClassFields": true,
+    "module": "commonjs",
+    "moduleResolution": "Node16",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "outDir": "../dist/server",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true
+  },
+  "include": ["./**/*.ts", "./index.d.ts" ,"./**/*.d.ts", "./**/*.tsx"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+
