@@ -45,6 +45,10 @@ router.get('/version', (req: Request, res: Response) => {
 })
 
 router.use('*', (req: Request, res: Response, next) => {
+    config.MONEYBIRD_ADMINISTRATION = ""
+    config.MONEYBIRD_TOKEN = ""
+    logger.debug("Resetted administration and token")
+
     if('moneybird-administration' in req.headers) {
         logger.debug('Found Moneybird administration, setted for this route')
         config.MONEYBIRD_ADMINISTRATION = <string>req.headers['moneybird-administration']
