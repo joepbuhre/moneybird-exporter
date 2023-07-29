@@ -51,7 +51,7 @@ onMounted(() => {
     if(main.moneybirdToken !== null) {
         main.setMoneybirdAdministrations()
     }
-    const socket = io('http://localhost:8000')
+    const socket = io()
     socket.on('state', (args: { statusEnum: string, state: boolean }) => {
         steps.value[args.statusEnum].done = args.state
         if (args.statusEnum === '4') {
