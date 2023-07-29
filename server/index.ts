@@ -13,6 +13,8 @@ import http from 'http'
 import { socketConnection } from "./socketio"
 import config from "./utils/config";
 import moneybird from "./routes/moneybird.route";
+import fs from 'fs'
+
 const app = express();
 
 const server = http.createServer(app);
@@ -34,6 +36,12 @@ if (config.NODE_ENV === "production") {
 
 router.get('/', (req: Request, res: Response) => {
     res.send('OK')
+})
+
+router.get('/version', (req: Request, res: Response) => {
+    res.send(
+        {version: fs.readFileSync(resolve('./VERSION')).toString()}
+    )
 })
 
 router.use('*', (req: Request, res: Response, next) => {

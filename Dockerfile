@@ -14,6 +14,7 @@ WORKDIR /app
 
 COPY --from=builder /builder/dist /app/
 COPY --from=builder /builder/package* /app/
+COPY ./VERSION ./
 
 RUN npm ci --omit dev
 
