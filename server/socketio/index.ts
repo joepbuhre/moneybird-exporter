@@ -7,7 +7,7 @@ let io: Server;
 export const socketConnection = (server: http.Server) => {
     io = new Server(server, {
         cors: {
-            origin: "http://localhost:5173",
+            origin: process.env.MONEYBIRD_REDIRECT_URI,
             methods: ["GET", "POST"],
         },
     });

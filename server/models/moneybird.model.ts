@@ -8,13 +8,13 @@ export const getMoneybirdUrl = (): Promise<string> => {
     if (
         !(
             "MONEYBIRD_CLIENT_ID" in process.env &&
-            process.env.MONEYBIRD_CLIENT_ID
+            process.env.MONEYBIRD_CLIENT_ID && process.env.MONEYBIRD_REDIRECT_URI
         )
     ) {
         return Promise.reject("Not valid uri");
     } else {
         url.searchParams.append("client_id", process.env.MONEYBIRD_CLIENT_ID);
-        url.searchParams.append("redirect_uri", "http://localhost:5173");
+        url.searchParams.append("redirect_uri", process.env.MONEYBIRD_REDIRECT_URI);
         url.searchParams.append("response_type", "code");
         return Promise.resolve(url.toString());
     }
