@@ -24,21 +24,14 @@ export const getMoneybirdToken = (
     code: string
 ): Promise<MoneybirdOauthResponse> => {
     return new Promise((resolve, reject) => {
-        if (
-            !(
-                "MONEYBIRD_CLIENT_SECRET" in process.env &&
-                process.env.MONEYBIRD_CLIENT_SECRET
-            )
-        ) {
-            return reject("Code not found");
-        } else {
+        if ( process.env.MONEYBIRD_CLIENT_SECRET && process.env.MONEYBIRD_REDIRECT_URI && process.env.MONEYBIRD_CLIENT_ID ) {
             const params = new FormData()
-            params.append('client_id', <string>process.env.MONEYBIRD_CLIENT_ID)
-            params.append('client_secret', <string>process.env.MONEYBIRD_CLIENT_SECRET)
+            params.append('client_id', process.env.MONEYBIRD_CLIENT_ID)
+            params.append('client_secret', process.env.MONEYBIRD_CLIENT_SECRET)
             params.append('code', code)
-            params.append('redirect_uri', <string>process.env.MONEYBIRD_REDIRECT_URI)
+            params.append('redirect_uri', process.env.MONEYBIRD_REDIRECT_URI)
             params.append('grant_type', "authorization_code")
-
+            
             axios
                 .post("https://moneybird.com/oauth/token", params)
                 .then((res) => {
@@ -47,6 +40,8 @@ export const getMoneybirdToken = (
                 .catch((err) => {
                     return reject(err);
                 });
+        } else {
+            return reject("Code not found");
         }
     });
 };
