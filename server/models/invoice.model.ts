@@ -24,6 +24,7 @@ export const getInvoices = (params?: moneybirdFilter): Promise<string[]> => {
             const invoices = data.map(el => {
                 return el.id
             })
+            logger.debug(`Fetched all eligible invoices ${invoices.length} pcs`)
             return resolve(invoices)
         })
     })
@@ -83,36 +84,51 @@ export const getInvoicesPdf = async (ids: string[], output: any): Promise<string
     const bird = getMoneybirdApi(config.MONEYBIRD_ADMINISTRATION, config.MONEYBIRD_TOKEN)
 
     const arch = archive(output)
-    
-    const promises = Promise.allSettled(
-        ids.map(id => {
-            return new Promise((resolve, reject) => {
-                bird.get(`/sales_invoices/${id}/download_pdf`, {
-                    responseType: 'arraybuffer', // had to add this one here
-                }).then(res => {
-                    // Get filename
-                    let fname
-                    if('content-disposition' in res.headers) {
-                        const cd: string = res.headers['content-disposition']
-                        const parsed: string[] | null = cd.match(/filename=(.*)/)
-                        if(parsed !== null && parsed.length > 1) {
-                            fname = JSON.parse(parsed[1])
-                        } else {
-                            fname = id
+
+    let result: any[] = []
+    const chunkSize = 5;
+    for (let i = 0; i < ids.length; i += chunkSize) {
+        const chunk = ids.slice(i, i + chunkSize);
+
+        let promises = Promise.allSettled(
+            chunk.map(id => {
+                return new Promise((resolve, reject) => {
+                    bird.get(`/sales_invoices/${id}/download_pdf`, {
+                        responseType: 'arraybuffer', // had to add this one here
+                    }).then(res => {
+                        // Get filename
+                        let fname
+                        if('content-disposition' in res.headers) {
+                            const cd: string = res.headers['content-disposition']
+                            const parsed: string[] | null = cd.match(/filename=(.*)/)
+                            if(parsed !== null && parsed.length > 1) {
+                                fname = JSON.parse(parsed[1])
+                            } else {
+                                fname = id
+                            }
                         }
-                    }
-                    
-                    arch.append(res.data, { name: fname });
-                    resolve(id)
+                        logger.debug(`Archiving invoice: [${fname}]`)
+                        arch.append(res.data, { name: fname });
+                        resolve(id)
+                    })
+                    .catch(err => {
+                        logger.error('Error has occured')
+                        logger.error(err.response.status)
+                        logger.error(err.response.headers)
+                        reject(err)
+                    })
                 })
             })
-        })
-    )
-
-
-
-    const result: any[] = await promises
-
+        )
+        
+        let tmpRes = await promises
+        result = [
+            ...result,
+            ...tmpRes
+        ]
+        logger.debug(`Done with a chunk, fetching next one`)
+    }
+    
     // If we're here we're done
     arch.finalize()
 
