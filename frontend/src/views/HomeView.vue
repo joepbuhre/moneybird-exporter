@@ -58,6 +58,10 @@ onMounted(() => {
             not.add('Alles sucesvol verstuurd!', 'success', 10000)
         }
     })
+
+    socket.on('error', (mess: string) => {
+        not.add(mess, 'error')
+    })
 })
 
 const sendEmail = () => {
@@ -78,7 +82,7 @@ const sendEmail = () => {
                 body: `Beste,\n\nVind bijgevoegd de facturen van afgelopen kwartaal.\n\nMet vriendelijke groet,\n${main.getAdministrations[0].name}`
             })
             .then(res => {
-                not.add('Volledig klaar', 'info', 10000)
+                not.add('Taak succesvol geaccepteerd', 'info', 10000)
             })
             .catch(err => {
                 not.add('Er is iets misgegaan. Probeer het alstjeblieft opnieuw', 'error')

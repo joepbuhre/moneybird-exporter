@@ -24,3 +24,7 @@ export const socketConnection = (server: http.Server) => {
 export const emitStatus = (statusEnum: number, state: boolean) => {
     io.emit('state', {statusEnum, state})
 }
+
+export const emitError = (mess: string) => {
+    io.emit('error', mess)
+}

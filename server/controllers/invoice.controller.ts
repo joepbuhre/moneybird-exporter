@@ -33,6 +33,7 @@ export const sendInvoicesExport = async (req: Request, res: Response) => {
     const fname = `${config.FILENAME_PREFIX}${dateFormat()}.zip`
     const fpath = resolve(__dirname, fname)
 
+    res.status(201).end()   
 
     const nmail = nodemailer.createTransport({
         host: config.SMTP_HOST,
@@ -44,7 +45,10 @@ export const sendInvoicesExport = async (req: Request, res: Response) => {
     })
 
     // Get all the eligible invoices
-    const invoices = await getInvoices()
+    const invoices = await getInvoices({
+        period: ['prev_quarter'],
+        state: ['late', 'open', 'paid', 'pending_payment', 'reminded', 'scheduled', 'uncollectible']
+    })
     emitStatus(1, true)
 
     // Create output file to write temporarily to
@@ -67,5 +71,4 @@ export const sendInvoicesExport = async (req: Request, res: Response) => {
 
     fs.unlinkSync(fpath)
 
-    res.end()   
 }
